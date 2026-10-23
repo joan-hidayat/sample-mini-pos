@@ -1,0 +1,80 @@
+# ==============================================================================
+# Environment & Sensitive Configuration
+# ==============================================================================
+.env
+.env.*
+!.env.example
+*.local.php
+config.local.php
+
+# ==============================================================================
+# Security / Cryptographic Keys & Certificates
+# ==============================================================================
+*.pem
+*.key
+*.pub
+*.crt
+*.pfx
+*.cert
+
+# ==============================================================================
+# Dependencies & Package Managers
+# ==============================================================================
+node_modules/
+vendor/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==============================================================================
+# Logs, Cache & Temporary Files
+# ==============================================================================
+*.log
+logs/
+error_log
+.cache/
+cache/
+tmp/
+temp/
+*.tmp
+
+# ==============================================================================
+# Local Backups & Scratch Files
+# ==============================================================================
+*.bak
+*.backup
+*.old
+*.swp
+*.swo
+*~
+scratch/
+backups/
+
+# ==============================================================================
+# IDE & Code Editor Configurations
+# ==============================================================================
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.sublime-project
+*.sublime-workspace
+
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
