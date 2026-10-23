@@ -5,29 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mini POS Express — Smart Cashier Client</title>
   <script>
-    // CLIENT GATEKEEPER:
-    // Jika dibuka langsung tanpa kredensial lisensi resmi dari Showcase, alihkan seketika ke Showcase
-    (function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const tenant = urlParams.get('tenant');
-      const lic = urlParams.get('lic');
-      const host = window.location.hostname || 'localhost';
-      const port = window.location.port ? ':' + window.location.port : ':8080';
-      const showcaseUrl = `${window.location.protocol}//${host}${port}/software-showcase/?notice=unauthorized_direct_access`;
-
-      if (!tenant || !lic) {
-        window.location.replace(showcaseUrl);
-      } else {
-        // Forward to index.php with the parameters
-        window.location.replace(`index.php?tenant=${encodeURIComponent(tenant)}&lic=${encodeURIComponent(lic)}`);
-      }
-    })();
+    // Server tanpa DirectoryIndex index.php: teruskan ke index.php (lisensi & login diperiksa di server)
+    window.location.replace('index.php' + window.location.search);
   </script>
 </head>
 <body style="background:#0b0f19; color:#f8fafc; font-family:sans-serif; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
   <div style="text-align:center;">
-    <h2 style="margin-bottom:8px;">🔒 Memverifikasi Otorisasi Lisensi...</h2>
-    <p style="color:#94a3b8;">Aplikasi ini dilindungi oleh Central SaaS LMD. Mengalihkan ke portal instalasi...</p>
+    <h2 style="margin-bottom:8px;">🔒 Memverifikasi Lisensi...</h2>
+    <p style="color:#94a3b8;">Mengalihkan ke Mini POS Express.</p>
   </div>
 </body>
 </html>

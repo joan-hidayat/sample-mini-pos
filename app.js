@@ -1,14 +1,13 @@
-﻿// MINI POS EXPRESS - SMART CLIENT APPLICATION (PROTECTED RUNTIME)
-const STORAGE_LICENSE_KEY = 'minipos_license_data';
+// MINI POS EXPRESS - SMART CLIENT APPLICATION (PROTECTED RUNTIME)
 const STORAGE_CART_KEY = 'minipos_cart';
 
 const PRODUCTS_CATALOG = [
-  { id: 1, name: 'Kopi Espresso Blend', category: 'Minuman', price: 18000, emoji: 'â˜•' },
-  { id: 2, name: 'Matcha Latte Premium', category: 'Minuman', price: 24000, emoji: 'ðŸµ' },
-  { id: 3, name: 'Croissant Coklat', category: 'Pastry', price: 22000, emoji: 'ðŸ¥' },
-  { id: 4, name: 'Sandwich Daging Asap', category: 'Makanan', price: 28000, emoji: 'ðŸ¥ª' },
-  { id: 5, name: 'Air Mineral Prima 600ml', category: 'Minuman', price: 6000, emoji: 'ðŸ’§' },
-  { id: 6, name: 'Donat Glaze Vanilla', category: 'Camilan', price: 12000, emoji: 'ðŸ©' }
+  { id: 1, name: 'Kopi Espresso Blend', category: 'Minuman', price: 18000, emoji: '☕' },
+  { id: 2, name: 'Matcha Latte Premium', category: 'Minuman', price: 24000, emoji: '🍵' },
+  { id: 3, name: 'Croissant Coklat', category: 'Pastry', price: 22000, emoji: '🥐' },
+  { id: 4, name: 'Sandwich Daging Asap', category: 'Makanan', price: 28000, emoji: '🥪' },
+  { id: 5, name: 'Air Mineral Prima 600ml', category: 'Minuman', price: 6000, emoji: '💧' },
+  { id: 6, name: 'Donat Glaze Vanilla', category: 'Camilan', price: 12000, emoji: '🍩' }
 ];
 
 const posApp = {
@@ -16,74 +15,21 @@ const posApp = {
   cart: [],
 
   init() {
-    this.checkLicenseAndGuard();
+    this.loadLicenseFromServer();
     this.renderProducts();
     this.bindEvents();
     this.updateCartUI();
   },
 
-  checkLicenseAndGuard() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlTenant = urlParams.get('tenant') || (window.__CLIENT_CONFIG__ && window.__CLIENT_CONFIG__.tenant);
-    const urlLic = urlParams.get('lic') || (window.__CLIENT_CONFIG__ && window.__CLIENT_CONFIG__.lic);
-
-    const host = window.location.hostname || 'localhost';
-    const port = window.location.port ? ':' + window.location.port : ':8080';
-    const showcaseUrl = `${window.location.protocol}//${host}${port}/software-showcase/?notice=unauthorized_direct_access`;
-
-    // 1. GATEKEEPER CHECK: Jika parameter URL tidak ada, tendang langsung ke Showcase
-    if (!urlTenant || !urlLic) {
-      window.location.replace(showcaseUrl);
-      return;
-    }
-
+  // Lisensi & login sudah diverifikasi server (index.php → lib/LicenseGate.php) sebelum halaman ini dikirim
+  loadLicenseFromServer() {
+    const cfg = window.__CLIENT_CONFIG__ || {};
     this.license = {
-      license_key: urlLic,
-      store_name: (window.__CLIENT_CONFIG__ && window.__CLIENT_CONFIG__.storeTitle) 
-        ? window.__CLIENT_CONFIG__.storeTitle 
-        : urlTenant.replace(/\.pos\.local$/, '').toUpperCase(),
-      instance_domain: urlTenant,
+      license_key: cfg.lic,
+      store_name: cfg.storeTitle,
+      instance_domain: cfg.tenant,
       status: 'active'
     };
-
-    localStorage.setItem(STORAGE_LICENSE_KEY, JSON.stringify(this.license));
-
-    const badge = document.getElementById('licenseBadge');
-    const badgeText = document.getElementById('licenseStatusText');
-    if (badge && badgeText) {
-      badge.className = 'license-badge active';
-      badgeText.textContent = `âš¡ Aktif (${this.license.license_key.substring(0, 16)}...)`;
-    }
-
-    // Lakukan validasi background pertama kali ke Central SaaS
-    this.verifyWithLmd(urlLic, urlTenant);
-  },
-
-  async verifyWithLmd(lic, domain) {
-    const host = window.location.hostname || 'localhost';
-    const port = window.location.port ? ':' + window.location.port : ':8080';
-    const apiUrl = `${window.location.protocol}//${host}${port}/License-Management-Dashboard/api/licenses/validate`;
-
-    try {
-      const resp = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          license_key: lic,
-          instance_key: 'INST-STORE-' + lic.substring(lic.length - 8),
-          domain: domain
-        })
-      });
-
-      const res = await resp.json();
-      const isValid = (res.valid === true) || (res.data && res.data.valid === true);
-      if (!isValid) {
-        alert('Lisensi Anda tidak valid atau telah ditangguhkan oleh Central SaaS. Anda akan dialihkan ke Software Showcase.');
-        window.location.replace(`${window.location.protocol}//${host}${port}/software-showcase/?notice=invalid_license`);
-      }
-    } catch (e) {
-      console.warn('Background LMD validation warning:', e);
-    }
   },
 
   async sendHeartbeat() {
@@ -95,9 +41,7 @@ const posApp = {
     const statusEl = document.getElementById('telemetryStatus');
     statusEl.textContent = 'Mengirim heartbeat telemetri ke Central SaaS...';
 
-    const host = window.location.hostname || 'localhost';
-    const port = window.location.port ? ':' + window.location.port : ':8080';
-    const apiUrl = `${window.location.protocol}//${host}${port}/License-Management-Dashboard/api/licenses/validate`;
+    const apiUrl = `${window.__CLIENT_CONFIG__.lmdApiUrl}/licenses/validate`;
 
     try {
       const resp = await fetch(apiUrl, {
@@ -113,9 +57,9 @@ const posApp = {
       const res = await resp.json();
       const isValid = (res.valid === true) || (res.data && res.data.valid === true);
       if (isValid) {
-        statusEl.innerHTML = `ðŸŸ¢ Terhubung & Valid! Status: <strong>${res.data.application || 'Active'}</strong>`;
+        statusEl.innerHTML = `🟢 Terhubung & Valid! Status: <strong>${res.data.application || 'Active'}</strong>`;
       } else {
-        statusEl.innerHTML = `ðŸ”´ Lisensi tidak valid: ${res.message}`;
+        statusEl.innerHTML = `🔴 Lisensi tidak valid: ${res.message}`;
       }
     } catch (e) {
       statusEl.textContent = 'Koneksi heartbeat gagal: ' + e.message;
@@ -178,7 +122,7 @@ const posApp = {
     if (this.cart.length === 0) {
       list.innerHTML = `
         <div class="cart-empty">
-          <div style="font-size: 32px; margin-bottom: 8px;">ðŸ›’</div>
+          <div style="font-size: 32px; margin-bottom: 8px;">🛒</div>
           <p>Belum ada produk dipilih</p>
           <small>Klik menu di sebelah kiri untuk menambah transaksi</small>
         </div>
