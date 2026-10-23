@@ -181,6 +181,19 @@ class LicenseGate {
             ]);
             exit;
         }
+        // Lisensi sah tetapi instalasi ini ditolak (T-02): jelaskan di tempat, jangan lempar ke Showcase
+        $installationErrors = [
+            'domain_mismatch' => 'Lisensi toko ini terkunci ke domain lain. Buka aplikasi dari alamat toko yang terdaftar, atau hubungi penyedia layanan untuk memindahkan lisensi.',
+            'instance_limit_reached' => 'Kuota instalasi paket Anda sudah penuh. Minta admin Central SaaS memblokir instalasi yang tidak dipakai, atau upgrade paket untuk menambah lokasi.',
+            'instance_blocked' => 'Instalasi di lokasi ini telah diblokir oleh admin Central SaaS. Hubungi penyedia layanan untuk mengaktifkannya kembali.',
+            'instance_key_conflict' => 'Identitas instalasi ini sudah terdaftar pada lisensi lain. Hubungi penyedia layanan.',
+        ];
+        $reason = $result['data']['reason'] ?? null;
+        if (isset($installationErrors[$reason])) {
+            http_response_code(403);
+            render('error', ['title' => 'Instalasi Tidak Diizinkan', 'message' => $installationErrors[$reason]]);
+            exit;
+        }
         redirect(showcase_url('invalid_license'));
     }
 }
