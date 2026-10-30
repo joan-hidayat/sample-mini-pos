@@ -21,6 +21,9 @@ $flash = flash();
         </a>
       <?php endforeach; ?>
       <?php if ($user['role'] === 'admin'): ?>
+        <?php if (has_module($license, 'KASIR')): ?>
+          <a href="<?php echo e(page_url('produk.php')); ?>" class="<?php echo $activePage === 'produk' ? 'active' : ''; ?>">Produk</a>
+        <?php endif; ?>
         <a href="<?php echo e(page_url('users.php')); ?>" class="<?php echo $activePage === 'users' ? 'active' : ''; ?>">Kelola User</a>
       <?php endif; ?>
     </nav>
