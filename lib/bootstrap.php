@@ -4,6 +4,8 @@
  */
 require_once __DIR__ . '/LicenseGate.php';
 require_once __DIR__ . '/UserRepository.php';
+require_once __DIR__ . '/ProductRepository.php';
+require_once __DIR__ . '/SaleRepository.php';
 
 const MINIPOS_ROOT = __DIR__ . '/..';
 
@@ -76,7 +78,8 @@ function db() {
     $pdo->exec("CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $pdo->exec("USE `{$dbName}`");
 
-    if (!$pdo->query("SHOW TABLES LIKE 'users'")->fetch()) {
+    // Tabel dicek dari yang paling baru: database lama ikut mendapat tabel baru (schema.sql memakai IF NOT EXISTS)
+    if (!$pdo->query("SHOW TABLES LIKE 'sale_items'")->fetch()) {
         $schema = preg_replace('/^--.*$/m', '', file_get_contents(MINIPOS_ROOT . '/database/schema.sql'));
         foreach (array_filter(array_map('trim', explode(';', $schema))) as $statement) {
             $pdo->exec($statement);
@@ -189,4 +192,40 @@ function require_login(array $tenant, array $license) {
         redirect(page_url('login.php'));
     }
     return $user;
+}
+
+/**
+ * Fitur Mini POS per modul lisensi LMD (T-28). Kode = modules.code di LMD (Standar Integrasi v1, kewajiban no. 5).
+ * admin: halaman hanya untuk peran admin · ready: false = fitur belum dibuat (ditampilkan "segera hadir").
+ */
+const APP_MODULES = [
+    'KASIR' => ['label' => 'Kasir', 'page' => 'index.php', 'key' => 'pos', 'admin' => false, 'ready' => true],
+    'LAPORAN' => ['label' => 'Laporan', 'page' => 'laporan.php', 'key' => 'laporan', 'admin' => true, 'ready' => true],
+    'STOK' => ['label' => 'Stok', 'page' => 'stok.php', 'key' => 'stok', 'admin' => true, 'ready' => true],
+    'MULTI_OUTLET' => ['label' => 'Multi Outlet', 'page' => 'outlet.php', 'key' => 'outlet', 'admin' => true, 'ready' => false],
+];
+
+function has_module(array $license, $code) {
+    return in_array($code, $license['modules'] ?? [], true);
+}
+
+/**
+ * Gerbang halaman fitur: hanya admin untuk modul admin, dan modul wajib ada di lisensi.
+ * Modul di luar paket → halaman "Upgrade paket" (403), bukan sekadar menu disembunyikan.
+ */
+function require_module(array $tenant, array $license, array $user, $code) {
+    $module = APP_MODULES[$code];
+    if ($module['admin'] && $user['role'] !== 'admin') {
+        flash('error', "Halaman {$module['label']} hanya untuk admin.");
+        redirect(page_url('index.php'));
+    }
+    if (!has_module($license, $code)) {
+        http_response_code(403);
+        render('locked', ['tenant' => $tenant, 'license' => $license, 'user' => $user, 'module' => $module, 'code' => $code]);
+        exit;
+    }
+}
+
+function rupiah($amount) {
+    return 'Rp ' . number_format((int) $amount, 0, ',', '.');
 }

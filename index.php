@@ -20,5 +20,11 @@ if ((new UserRepository(db()))->countAll((int) $tenant['id']) === 0) {
     redirect(page_url('setup.php'));
 }
 $user = require_login($tenant, $license);
+require_module($tenant, $license, $user, 'KASIR');
 
-render('pos', ['tenant' => $tenant, 'license' => $license, 'user' => $user]);
+render('pos', [
+    'tenant' => $tenant,
+    'license' => $license,
+    'user' => $user,
+    'products' => (new ProductRepository(db()))->listActive((int) $tenant['id']),
+]);

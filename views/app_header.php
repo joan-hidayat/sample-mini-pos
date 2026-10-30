@@ -11,7 +11,15 @@ $flash = flash();
       </div>
     </div>
     <nav class="app-nav" aria-label="Menu utama">
-      <a href="<?php echo e(page_url('index.php')); ?>" class="<?php echo $activePage === 'pos' ? 'active' : ''; ?>">Kasir</a>
+      <?php foreach (APP_MODULES as $code => $module):
+        if ($module['admin'] && $user['role'] !== 'admin') continue;
+        $owned = has_module($license, $code); ?>
+        <a href="<?php echo e(page_url($module['page'])); ?>"
+           class="<?php echo trim(($activePage === $module['key'] ? 'active ' : '') . ($owned ? '' : 'locked')); ?>"
+           <?php echo $owned ? '' : 'title="Tidak termasuk paket Anda — upgrade untuk membuka"'; ?>>
+          <?php echo e($module['label']); ?><?php if (!$owned): ?> <span class="nav-lock" aria-label="terkunci">🔒</span><?php elseif (!$module['ready']): ?> <span class="nav-soon">segera</span><?php endif; ?>
+        </a>
+      <?php endforeach; ?>
       <?php if ($user['role'] === 'admin'): ?>
         <a href="<?php echo e(page_url('users.php')); ?>" class="<?php echo $activePage === 'users' ? 'active' : ''; ?>">Kelola User</a>
       <?php endif; ?>
