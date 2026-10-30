@@ -5,7 +5,9 @@
  * Nilai default di bawah cocok untuk XAMPP lokal. Untuk server lain, buat file
  * config.local.php (sudah di-ignore git) yang me-return array berisi key yang ingin diganti, misalnya:
  *
- *   <?php return ['db' => ['pass' => 'rahasia'], 'lmd_api_url' => 'https://license.domain.com/api/index.php'];
+ *   <?php return ['db' => ['pass' => 'rahasia']];
+ *
+ * Pengaturan koneksi ke Central SaaS LMD (kode aplikasi, URL API) ada di lmd-client.php.
  */
 $config = [
     // Database milik Mini POS sendiri (bukan database Central SaaS LMD).
@@ -17,8 +19,6 @@ $config = [
         'pass' => '',
     ],
 
-    // null = otomatis memakai host yang sama: {scheme}://{host}/License-Management-Dashboard/api/index.php
-    'lmd_api_url' => null,
     // null = otomatis memakai host yang sama: {scheme}://{host}/software-showcase/
     'showcase_url' => null,
 

@@ -20,7 +20,7 @@ $storeTitle = $license['store_name'];
       maxUsers: <?php echo (int) $license['max_users']; ?>,
       expiresAt: <?php echo json_encode($license['expires_at'] ?? ''); ?>,
       appName: <?php echo json_encode($license['app_name'] ?? ''); ?>,
-      lmdApiUrl: <?php echo json_encode(app_config('lmd_api_url') ?: base_host_url() . '/License-Management-Dashboard/api/index.php'); ?>,
+      lmdApiUrl: <?php echo json_encode(lmd_client('lmd_api_url')); ?>,
       showcaseUrl: <?php echo json_encode(showcase_url()); ?>,
       cashierName: <?php echo json_encode($user['name']); ?>
     };

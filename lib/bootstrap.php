@@ -15,6 +15,18 @@ function app_config($key = null) {
     return $key === null ? $config : ($config[$key] ?? null);
 }
 
+/**
+ * Identitas aplikasi untuk LMD (lmd-client.php). URL API otomatis memakai host yang sama bila tidak diisi.
+ */
+function lmd_client($key) {
+    static $client = null;
+    if ($client === null) {
+        $client = require MINIPOS_ROOT . '/lmd-client.php';
+        $client['lmd_api_url'] = rtrim($client['lmd_api_url'] ?: base_host_url() . '/License-Management-Dashboard/api/index.php', '/');
+    }
+    return $client[$key] ?? null;
+}
+
 function is_https() {
     return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
 }

@@ -9,3 +9,6 @@ Setiap perubahan kode dan setiap analisis/temuan di repo ini dicatat di repo **l
 - `docs/EKOSISTEM_CARA_KERJA.md` — perbarui jika alur, endpoint, atau status implementasi berubah.
 
 Jika repo lmd tidak ada di sesi, tambahkan dulu (add_repo `joan-hidayat/lmd`) sebelum menutup pekerjaan.
+
+## Standar integrasi (wajib)
+Integrasi LMD ↔ Showcase ↔ aplikasi client mengikuti `docs/STANDAR_INTEGRASI.md` di repo **lmd** (v1): satu `app_code` yang sama di registry LMD, `lmdAppCode` produk Showcase, dan `lmd-client.php` aplikasi client. Aplikasi baru wajib melewati checklist di bagian 6 dokumen itu.
