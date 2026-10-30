@@ -655,3 +655,39 @@ body {
   .users-layout { grid-template-columns: 1fr; padding: 16px; }
   .app-header { padding: 12px 16px; }
 }
+
+/* ==========================================================================
+   MODUL LISENSI (T-28): menu terkunci, laporan, stok
+   ========================================================================== */
+.app-nav a.locked { opacity: 0.55; }
+.app-nav a.locked:hover { opacity: 0.85; }
+.nav-lock { font-size: 11px; }
+.nav-soon { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: #fbbf24; background: rgba(245, 158, 11, 0.15); padding: 2px 5px; border-radius: 4px; }
+.page-layout { flex: 1; display: flex; flex-direction: column; gap: 20px; padding: 20px 24px; }
+.locked-panel { max-width: 560px; margin: 40px auto; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.locked-panel .users-sub { font-size: 13px; line-height: 1.7; }
+.locked-panel .btn { text-decoration: none; }
+.locked-icon { font-size: 40px; }
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.stat-tile { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.stat-tile span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat-tile strong { font: 700 20px var(--font-mono); }
+.report-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 20px; }
+.report-grid .users-panel h2 { margin-bottom: 10px; }
+.users-table.compact { min-width: 0; }
+.users-table.compact td { padding: 9px 10px; }
+.cell-num { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+.mono { font-family: var(--font-mono); font-size: 12px; }
+.report-filter { flex-wrap: wrap; }
+.report-filter input { width: auto; color-scheme: dark; }
+.chip { font-size: 12px; font-weight: 700; color: var(--text-muted); text-decoration: none; padding: 6px 10px; border: 1px solid var(--border); border-radius: 20px; }
+.chip.active, .chip:hover { color: var(--text-main); border-color: var(--primary); }
+.status-pill.low { color: #fbbf24; background: rgba(245, 158, 11, 0.15); }
+.inline-form .input-num { width: 84px; }
+.product-card.sold-out { opacity: 0.45; cursor: not-allowed; }
+.product-stock { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block; }
+.product-stock.low { color: #fbbf24; }
+@media (max-width: 900px) {
+  .page-layout { padding: 16px; }
+  .report-grid { grid-template-columns: 1fr; }
+}

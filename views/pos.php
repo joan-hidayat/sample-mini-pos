@@ -1,5 +1,5 @@
 <?php
-/** @var array $tenant  @var array $license  @var array $user */
+/** @var array $tenant  @var array $license  @var array $user  @var array $products */
 $storeTitle = $license['store_name'];
 ?>
 <!DOCTYPE html>
@@ -11,18 +11,16 @@ $storeTitle = $license['store_name'];
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261023_v3">
+  <link rel="stylesheet" href="style.css?v=20261030_t28">
   <script>
     window.__CLIENT_CONFIG__ = {
       tenant: <?php echo json_encode($tenant['domain']); ?>,
-      lic: <?php echo json_encode($license['license_key']); ?>,
       storeTitle: <?php echo json_encode($storeTitle); ?>,
-      maxUsers: <?php echo (int) $license['max_users']; ?>,
-      expiresAt: <?php echo json_encode($license['expires_at'] ?? ''); ?>,
-      appName: <?php echo json_encode($license['app_name'] ?? ''); ?>,
-      lmdApiUrl: <?php echo json_encode(lmd_client('lmd_api_url')); ?>,
-      showcaseUrl: <?php echo json_encode(showcase_url()); ?>,
-      cashierName: <?php echo json_encode($user['name']); ?>
+      cashierName: <?php echo json_encode($user['name']); ?>,
+      csrfToken: <?php echo json_encode(csrf_token()); ?>,
+      // Modul STOK (T-28): stok ditampilkan & dibatasi; tanpa modul ini stok diabaikan
+      trackStock: <?php echo json_encode(has_module($license, 'STOK')); ?>,
+      products: <?php echo json_encode($products, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>
     };
   </script>
 </head>
@@ -36,7 +34,7 @@ $storeTitle = $license['store_name'];
     <section class="menu-section">
       <div class="section-top">
         <h2>Katalog Menu Kasir</h2>
-        <span class="item-count">6 Menu Tersedia</span>
+        <span class="item-count" id="productCount"></span>
       </div>
 
       <div class="product-grid" id="productGrid">
@@ -109,6 +107,6 @@ $storeTitle = $license['store_name'];
     </div>
   </div>
 
-  <script src="app.js?v=20261031_v1"></script>
+  <script src="app.js?v=20261030_t28"></script>
 </body>
 </html>
