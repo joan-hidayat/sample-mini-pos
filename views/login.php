@@ -20,7 +20,7 @@ ob_start();
 
   <button type="submit" class="btn btn-primary btn-block">Masuk</button>
 </form>
-<p class="auth-hint auth-center">Lupa password? Minta admin toko untuk mengatur ulang password Anda.</p>
+<p class="auth-hint auth-center">Lupa password? Kasir: minta admin toko mengganti password Anda. Admin: hubungi penyedia layanan untuk mendapatkan link reset.</p>
 <?php
 $content = ob_get_clean();
 render('layout_auth', ['title' => 'Masuk', 'content' => $content, 'license' => $license]);
