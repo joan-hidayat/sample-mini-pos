@@ -691,3 +691,11 @@ body {
   .page-layout { padding: 16px; }
   .report-grid { grid-template-columns: 1fr; }
 }
+
+/* KELOLA PRODUK (T-30) */
+.product-form { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px; align-items: center; margin: 4px 0 8px; }
+.product-form label { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+.product-form input { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; color: var(--text-main); font: 500 12px var(--font-main); padding: 6px 10px; width: 200px; }
+.product-form input:focus { outline: none; border-color: var(--primary); }
+.product-form .input-emoji { width: 60px; }
+.product-form .btn { grid-column: 2; justify-self: start; }
