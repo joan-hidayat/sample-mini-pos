@@ -83,11 +83,11 @@ class LicenseGate {
     }
 
     private function validateRemote($domain, $licenseKey) {
-        $apiUrl = $this->config['lmd_api_url'] ?: base_host_url() . '/License-Management-Dashboard/api/index.php';
+        $apiUrl = lmd_client('lmd_api_url');
         $payload = json_encode([
             'license_key' => $licenseKey,
-            // Konvensi instance key Mini POS, sama dengan yang dibuat LMD saat order dari Showcase
-            'instance_key' => 'INST-STORE-' . substr($licenseKey, -8),
+            // Konvensi instance key (lmd-client.php), sama dengan yang dibuat LMD saat order dari Showcase
+            'instance_key' => lmd_client('instance_key_prefix') . substr($licenseKey, -8),
             'domain' => $domain,
         ]);
 
@@ -98,13 +98,18 @@ class LicenseGate {
             'timeout' => 5,
             'ignore_errors' => true,
         ]]);
-        $raw = @file_get_contents(rtrim($apiUrl, '/') . '/licenses/validate', false, $context);
+        $raw = @file_get_contents($apiUrl . '/licenses/validate', false, $context);
         $json = $raw !== false ? json_decode($raw, true) : null;
 
         if (!is_array($json)) {
             return ['valid' => false, 'unreachable' => true, 'message' => 'Server lisensi Central SaaS tidak dapat dihubungi.'];
         }
         $data = $json['data'] ?? [];
+
+        // Standar Integrasi v1: lisensi aktif milik aplikasi lain tetap ditolak
+        if (!empty($data['valid']) && ($data['app_code'] ?? null) !== lmd_client('app_code')) {
+            $data = ['valid' => false, 'reason' => 'app_mismatch', 'app_code' => $data['app_code'] ?? null, 'application' => $data['application'] ?? null];
+        }
         return [
             'valid' => !empty($data['valid']),
             'unreachable' => false,
@@ -187,6 +192,8 @@ class LicenseGate {
             'instance_limit_reached' => 'Kuota instalasi paket Anda sudah penuh. Minta admin Central SaaS memblokir instalasi yang tidak dipakai, atau upgrade paket untuk menambah lokasi.',
             'instance_blocked' => 'Instalasi di lokasi ini telah diblokir oleh admin Central SaaS. Hubungi penyedia layanan untuk mengaktifkannya kembali.',
             'instance_key_conflict' => 'Identitas instalasi ini sudah terdaftar pada lisensi lain. Hubungi penyedia layanan.',
+            'app_mismatch' => 'License key ini terdaftar untuk aplikasi ' . ($result['data']['application'] ?? 'lain')
+                . ', bukan Mini POS Express. Pesan paket Mini POS di Software Showcase untuk mendapatkan license key yang sesuai.',
         ];
         $reason = $result['data']['reason'] ?? null;
         if (isset($installationErrors[$reason])) {
