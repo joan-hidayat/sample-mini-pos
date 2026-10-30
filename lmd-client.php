@@ -16,9 +16,8 @@ $client = [
     // instance_key = prefix + 8 karakter terakhir license key. Harus sama dengan yang dibuat LMD saat order.
     'instance_key_prefix' => 'INST-STORE-',
 
-    // Tahap production (T-04 / T-22): diterbitkan LMD per aplikasi, secret disimpan di environment server.
-    // 'app_id' => '',
-    // 'app_secret' => getenv('LMD_APP_SECRET'),
+    // Instance secret untuk tanda tangan request (Standar v1.1 bagian 4.3) TIDAK disimpan di sini:
+    // secret berbeda per toko dan disimpan di tabel tenants (database mini_pos).
 ];
 
 if (file_exists(__DIR__ . '/lmd-client.local.php')) {

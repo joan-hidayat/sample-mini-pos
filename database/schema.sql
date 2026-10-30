@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `tenants` (
     `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     `domain` VARCHAR(255) NOT NULL UNIQUE,
     `license_key` VARCHAR(150) NOT NULL,
+    `instance_secret` CHAR(64) NULL COMMENT 'Secret dari LMD untuk menandatangani request (T-22)',
     `store_name` VARCHAR(150) NULL,
     `licensee_name` VARCHAR(150) NULL,
     `licensee_email` VARCHAR(150) NULL,

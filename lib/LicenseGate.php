@@ -42,11 +42,12 @@ class LicenseGate {
         $tenant = $this->findTenant($requested);
 
         if ($licenseKey !== '' && (!$tenant || !hash_equals($tenant['license_key'], $licenseKey))) {
-            $result = $this->validateRemote($requested, $licenseKey);
+            // License key baru untuk tenant ini: secret lama (milik lisensi lain) tidak dipakai
+            $result = $this->validateRemote($requested, $licenseKey, null);
             if (!$result['valid']) {
                 $this->deny($result);
             }
-            $tenant = $this->saveTenant($requested, $licenseKey, $result['data']);
+            $tenant = $this->saveTenant($requested, $licenseKey, $result['data'], true);
             $this->cache($tenant);
         }
 
@@ -70,7 +71,7 @@ class LicenseGate {
             return $cached['license'];
         }
 
-        $result = $this->validateRemote($tenant['domain'], $tenant['license_key']);
+        $result = $this->validateRemote($tenant['domain'], $tenant['license_key'], $tenant['instance_secret'] ?? null);
         if ($result['valid']) {
             $tenant = $this->saveTenant($tenant['domain'], $tenant['license_key'], $result['data']);
             return $this->cache($tenant);
@@ -82,7 +83,11 @@ class LicenseGate {
         $this->deny($result);
     }
 
-    private function validateRemote($domain, $licenseKey) {
+    /**
+     * $secret: instance secret dari LMD (T-22). Jika ada, request ditandatangani
+     * HMAC-SHA256(secret, timestamp + "\n" + body) lewat header X-LMD-Timestamp & X-LMD-Signature.
+     */
+    private function validateRemote($domain, $licenseKey, $secret) {
         $payload = json_encode([
             'license_key' => $licenseKey,
             // Konvensi instance key (lmd-client.php), sama dengan yang dibuat LMD saat order dari Showcase
@@ -90,7 +95,15 @@ class LicenseGate {
             'domain' => $domain,
         ]);
 
-        $json = $this->postLmd('/licenses/validate', $payload);
+        $headers = [];
+        if ($secret) {
+            $timestamp = (string) time();
+            $headers = [
+                'X-LMD-Timestamp: ' . $timestamp,
+                'X-LMD-Signature: ' . hash_hmac('sha256', $timestamp . "\n" . $payload, $secret),
+            ];
+        }
+        $json = $this->postLmd('/licenses/validate', $payload, $headers);
 
         if (!is_array($json)) {
             return ['valid' => false, 'unreachable' => true, 'message' => 'Server lisensi Central SaaS tidak dapat dihubungi.'];
@@ -126,10 +139,10 @@ class LicenseGate {
         return ['valid' => !empty($data['valid']), 'reason' => $data['reason'] ?? null];
     }
 
-    private function postLmd($path, $payload) {
+    private function postLmd($path, $payload, array $headers = []) {
         $context = stream_context_create(['http' => [
             'method' => 'POST',
-            'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+            'header' => implode("\r\n", array_merge(['Content-Type: application/json', 'Accept: application/json'], $headers)) . "\r\n",
             'content' => $payload,
             'timeout' => 5,
             'ignore_errors' => true,
@@ -144,7 +157,7 @@ class LicenseGate {
         return $stmt->fetch() ?: null;
     }
 
-    private function saveTenant($domain, $licenseKey, array $data) {
+    private function saveTenant($domain, $licenseKey, array $data, $newLicense = false) {
         $stmt = $this->db->prepare("
             INSERT INTO tenants (domain, license_key, store_name, licensee_name, licensee_email, app_name, max_users, modules, expires_at, last_validated_at)
             VALUES (:domain, :license_key, :store_name, :licensee_name, :licensee_email, :app_name, :max_users, :modules, :expires_at, NOW())
@@ -163,6 +176,11 @@ class LicenseGate {
             'modules' => json_encode($data['modules'] ?? []),
             'expires_at' => $data['expires_at'] ?? null,
         ]);
+        // Secret hanya dikirim LMD sekali (validasi pertama); simpan, atau buang bila license key berganti
+        if (!empty($data['instance_secret']) || $newLicense) {
+            $this->db->prepare("UPDATE tenants SET instance_secret = :secret WHERE domain = :domain")
+                ->execute(['secret' => $data['instance_secret'] ?? null, 'domain' => $domain]);
+        }
         return $this->findTenant($domain);
     }
 
@@ -212,6 +230,9 @@ class LicenseGate {
             'instance_limit_reached' => 'Kuota instalasi paket Anda sudah penuh. Minta admin Central SaaS memblokir instalasi yang tidak dipakai, atau upgrade paket untuk menambah lokasi.',
             'instance_blocked' => 'Instalasi di lokasi ini telah diblokir oleh admin Central SaaS. Hubungi penyedia layanan untuk mengaktifkannya kembali.',
             'instance_key_conflict' => 'Identitas instalasi ini sudah terdaftar pada lisensi lain. Hubungi penyedia layanan.',
+            'signature_required' => 'Instalasi ini belum memiliki kunci rahasia dari Central SaaS (mis. database aplikasi dipulihkan atau dipindah). Minta penyedia layanan menekan "Reset secret" pada instalasi toko ini, lalu muat ulang halaman.',
+            'signature_invalid' => 'Kunci rahasia instalasi ini tidak cocok dengan Central SaaS. Minta penyedia layanan menekan "Reset secret" pada instalasi toko ini, lalu muat ulang halaman.',
+            'signature_expired' => 'Jam server aplikasi ini berbeda lebih dari 5 menit dengan Central SaaS. Periksa pengaturan jam & zona waktu server, lalu muat ulang halaman.',
             'app_mismatch' => 'License key ini terdaftar untuk aplikasi ' . ($result['data']['application'] ?? 'lain')
                 . ', bukan Mini POS Express. Pesan paket Mini POS di Software Showcase untuk mendapatkan license key yang sesuai.',
         ];

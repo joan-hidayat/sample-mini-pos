@@ -82,6 +82,10 @@ function db() {
             $pdo->exec($statement);
         }
     }
+    // Database lama: tambahkan kolom yang muncul setelah versi pertama
+    if (!$pdo->query("SHOW COLUMNS FROM tenants LIKE 'instance_secret'")->fetch()) {
+        $pdo->exec("ALTER TABLE tenants ADD COLUMN instance_secret CHAR(64) NULL AFTER license_key");
+    }
     return $pdo;
 }
 

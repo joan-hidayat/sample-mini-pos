@@ -41,23 +41,21 @@ const posApp = {
     const statusEl = document.getElementById('telemetryStatus');
     statusEl.textContent = 'Mengirim heartbeat telemetri ke Central SaaS...';
 
-    const apiUrl = `${window.__CLIENT_CONFIG__.lmdApiUrl}/licenses/validate`;
-
     try {
-      const resp = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          license_key: this.license.license_key,
-          instance_key: 'INST-STORE-' + this.license.license_key.substring(this.license.license_key.length - 8),
-          domain: this.license.instance_domain || (window.location.hostname || 'localhost')
-        })
+      // Divalidasi dari server Mini POS (request ke LMD ditandatangani instance secret, T-22)
+      const resp = await fetch(`heartbeat.php?tenant=${encodeURIComponent(window.__CLIENT_CONFIG__.tenant)}`, {
+        headers: { 'Accept': 'application/json' }
       });
+      if (!resp.headers.get('content-type')?.includes('application/json')) {
+        window.location.reload();  // lisensi ditolak: server mengirim halaman penjelasan
+        return;
+      }
 
       const res = await resp.json();
-      const isValid = (res.valid === true) || (res.data && res.data.valid === true);
-      if (isValid) {
-        statusEl.innerHTML = `🟢 Terhubung & Valid! Status: <strong>${res.data.application || 'Active'}</strong>`;
+      if (res.valid) {
+        statusEl.innerHTML = res.offline
+          ? '🟡 Mode tenggang: Central SaaS tidak terjangkau'
+          : `🟢 Terhubung & Valid! Status: <strong>${res.application || 'Active'}</strong>`;
       } else {
         statusEl.innerHTML = `🔴 Lisensi tidak valid: ${res.message}`;
       }
