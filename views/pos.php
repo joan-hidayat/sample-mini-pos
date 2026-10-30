@@ -109,6 +109,6 @@ $storeTitle = $license['store_name'];
     </div>
   </div>
 
-  <script src="app.js?v=20261023_v3"></script>
+  <script src="app.js?v=20261031_v1"></script>
 </body>
 </html>
