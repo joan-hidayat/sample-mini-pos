@@ -83,7 +83,6 @@ class LicenseGate {
     }
 
     private function validateRemote($domain, $licenseKey) {
-        $apiUrl = lmd_client('lmd_api_url');
         $payload = json_encode([
             'license_key' => $licenseKey,
             // Konvensi instance key (lmd-client.php), sama dengan yang dibuat LMD saat order dari Showcase
@@ -91,15 +90,7 @@ class LicenseGate {
             'domain' => $domain,
         ]);
 
-        $context = stream_context_create(['http' => [
-            'method' => 'POST',
-            'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
-            'content' => $payload,
-            'timeout' => 5,
-            'ignore_errors' => true,
-        ]]);
-        $raw = @file_get_contents($apiUrl . '/licenses/validate', false, $context);
-        $json = $raw !== false ? json_decode($raw, true) : null;
+        $json = $this->postLmd('/licenses/validate', $payload);
 
         if (!is_array($json)) {
             return ['valid' => false, 'unreachable' => true, 'message' => 'Server lisensi Central SaaS tidak dapat dihubungi.'];
@@ -116,6 +107,35 @@ class LicenseGate {
             'message' => $json['message'] ?? 'Lisensi tidak valid.',
             'data' => $data,
         ];
+    }
+
+    /**
+     * Memeriksa ($consume = false) atau menghanguskan ($consume = true) token reset password admin dari LMD (T-21).
+     * Mengembalikan ['valid' => bool, 'reason' => ...]; reason 'unreachable' jika LMD tidak bisa dihubungi.
+     */
+    public function checkResetToken(array $tenant, $token, $consume) {
+        $json = $this->postLmd('/licenses/reset_token', json_encode([
+            'license_key' => $tenant['license_key'],
+            'token' => $token,
+            'consume' => (bool) $consume,
+        ]));
+        if (!is_array($json)) {
+            return ['valid' => false, 'reason' => 'unreachable'];
+        }
+        $data = $json['data'] ?? [];
+        return ['valid' => !empty($data['valid']), 'reason' => $data['reason'] ?? null];
+    }
+
+    private function postLmd($path, $payload) {
+        $context = stream_context_create(['http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+            'content' => $payload,
+            'timeout' => 5,
+            'ignore_errors' => true,
+        ]]);
+        $raw = @file_get_contents(lmd_client('lmd_api_url') . $path, false, $context);
+        return $raw !== false ? json_decode($raw, true) : null;
     }
 
     private function findTenant($domain) {

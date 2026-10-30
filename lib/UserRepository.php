@@ -90,6 +90,22 @@ class UserRepository {
             ->execute(['status' => $status, 'id' => $id, 'tenant_id' => $tenantId]);
     }
 
+    /**
+     * Daftar admin aktif (untuk halaman reset password admin dari LMD).
+     */
+    public function listActiveAdmins($tenantId) {
+        $stmt = $this->db->prepare("SELECT id, name, email FROM users WHERE tenant_id = :tenant_id AND role = 'admin' AND status = 'active' ORDER BY name");
+        $stmt->execute(['tenant_id' => $tenantId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Validasi password tanpa menyimpan (dipakai sebelum token reset dihanguskan).
+     */
+    public function checkPassword($password) {
+        $this->assertPassword($password);
+    }
+
     public function resetPassword($id, $tenantId, $password) {
         $this->assertPassword($password);
         $this->db->prepare("UPDATE users SET password_hash = :hash, failed_attempts = 0, locked_until = NULL WHERE id = :id AND tenant_id = :tenant_id")

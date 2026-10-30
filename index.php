@@ -9,6 +9,11 @@
  */
 require_once __DIR__ . '/lib/bootstrap.php';
 
+// Link reset password admin dari LMD (T-21) masuk lewat alamat aplikasi: teruskan ke halaman reset
+if (!empty($_GET['reset_token'])) {
+    redirect('reset.php?' . http_build_query(['tenant' => $_GET['tenant'] ?? '', 'reset_token' => $_GET['reset_token']]));
+}
+
 [$tenant, $license] = boot_tenant();
 
 if ((new UserRepository(db()))->countAll((int) $tenant['id']) === 0) {
