@@ -195,14 +195,18 @@ function require_login(array $tenant, array $license) {
 }
 
 /**
- * Fitur Mini POS per modul lisensi LMD (T-28). Kode = modules.code di LMD (Standar Integrasi v1, kewajiban no. 5).
+ * Fitur Mini POS per modul lisensi LMD (T-28). Juga sumber daftar modul di lmd-manifest.php (T-34). Kode = modules.code di LMD (Standar Integrasi v1, kewajiban no. 5).
  * admin: halaman hanya untuk peran admin · ready: false = fitur belum dibuat (ditampilkan "segera hadir").
  */
 const APP_MODULES = [
-    'KASIR' => ['label' => 'Kasir', 'page' => 'index.php', 'key' => 'pos', 'admin' => false, 'ready' => true],
-    'LAPORAN' => ['label' => 'Laporan', 'page' => 'laporan.php', 'key' => 'laporan', 'admin' => true, 'ready' => true],
-    'STOK' => ['label' => 'Stok', 'page' => 'stok.php', 'key' => 'stok', 'admin' => true, 'ready' => true],
-    'MULTI_OUTLET' => ['label' => 'Multi Outlet', 'page' => 'outlet.php', 'key' => 'outlet', 'admin' => true, 'ready' => false],
+    'KASIR' => ['label' => 'Kasir', 'page' => 'index.php', 'key' => 'pos', 'admin' => false, 'ready' => true,
+        'description' => 'Kasir, katalog & kelola produk, struk'],
+    'LAPORAN' => ['label' => 'Laporan', 'page' => 'laporan.php', 'key' => 'laporan', 'admin' => true, 'ready' => true,
+        'description' => 'Laporan penjualan: omzet, produk terlaris, per kasir, per hari'],
+    'STOK' => ['label' => 'Stok', 'page' => 'stok.php', 'key' => 'stok', 'admin' => true, 'ready' => true,
+        'description' => 'Stok produk & stok minimum; penjualan dibatasi stok'],
+    'MULTI_OUTLET' => ['label' => 'Multi Outlet', 'page' => 'outlet.php', 'key' => 'outlet', 'admin' => true, 'ready' => false,
+        'description' => 'Banyak cabang dalam satu akun (segera hadir)'],
 ];
 
 function has_module(array $license, $code) {
