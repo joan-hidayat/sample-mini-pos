@@ -10,6 +10,10 @@ $client = [
     // License key dengan app_code lain ditolak, walaupun lisensinya aktif.
     'app_code' => 'MINIPOS',
 
+    // Dipakai lmd-manifest.php (Standar v1.2 bagian 4.4) saat admin LMD mengimpor aplikasi ini
+    'app_name' => 'Mini POS Express',
+    'app_description' => 'Aplikasi kasir web hosted untuk toko & F&B: kasir, laporan penjualan, stok.',
+
     // null = otomatis memakai host yang sama: {scheme}://{host}/License-Management-Dashboard/api/index.php
     'lmd_api_url' => null,
 
