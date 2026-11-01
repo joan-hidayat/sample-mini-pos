@@ -11,7 +11,7 @@ $storeTitle = $license['store_name'];
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=20261031_t30">
+  <link rel="stylesheet" href="style.css?v=20261102_t42">
   <script>
     window.__CLIENT_CONFIG__ = {
       tenant: <?php echo json_encode($tenant['domain']); ?>,

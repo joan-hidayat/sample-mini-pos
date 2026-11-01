@@ -1,5 +1,5 @@
 <?php
-/** @var array $license  @var array $old  @var string|null $error */
+/** @var array $license  @var array $old  @var string|null $error  @var bool $hasProof */
 ob_start();
 ?>
 <h1 class="auth-title">Buat Akun Admin</h1>
@@ -12,6 +12,12 @@ ob_start();
 
 <form method="post" class="auth-form" novalidate>
   <?php echo csrf_field(); ?>
+  <?php if (!$hasProof): ?>
+    <label for="license_key">License key</label>
+    <input id="license_key" name="license_key" type="text" required autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LIC-MINIPOS-…">
+    <small class="auth-hint">Halaman ini dibuka tanpa link aktivasi. Masukkan license key dari Software Showcase → 🔎 Cek Pesanan (no. pesanan + email pemesan).</small>
+  <?php endif; ?>
+
   <label for="name">Nama lengkap</label>
   <input id="name" name="name" type="text" autocomplete="name" required value="<?php echo e($old['name'] ?? $license['licensee_name']); ?>">
 
