@@ -89,6 +89,9 @@ function db() {
     if (!$pdo->query("SHOW COLUMNS FROM tenants LIKE 'instance_secret'")->fetch()) {
         $pdo->exec("ALTER TABLE tenants ADD COLUMN instance_secret CHAR(64) NULL AFTER license_key");
     }
+    if (!$pdo->query("SHOW COLUMNS FROM tenants LIKE 'subscription'")->fetch()) {
+        $pdo->exec("ALTER TABLE tenants ADD COLUMN subscription JSON NULL AFTER modules");
+    }
     return $pdo;
 }
 

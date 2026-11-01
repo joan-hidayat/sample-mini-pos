@@ -25,6 +25,7 @@ $flash = flash();
           <a href="<?php echo e(page_url('produk.php')); ?>" class="<?php echo $activePage === 'produk' ? 'active' : ''; ?>">Produk</a>
         <?php endif; ?>
         <a href="<?php echo e(page_url('users.php')); ?>" class="<?php echo $activePage === 'users' ? 'active' : ''; ?>">Kelola User</a>
+        <a href="<?php echo e(page_url('langganan.php')); ?>" class="<?php echo $activePage === 'langganan' ? 'active' : ''; ?>">Langganan</a>
       <?php endif; ?>
     </nav>
     <div class="header-status">

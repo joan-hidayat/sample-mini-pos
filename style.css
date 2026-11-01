@@ -699,3 +699,19 @@ body {
 .product-form input:focus { outline: none; border-color: var(--primary); }
 .product-form .input-emoji { width: 60px; }
 .product-form .btn { grid-column: 2; justify-self: start; }
+
+/* LANGGANAN (T-42) */
+.mono-lg { font-family: var(--font-mono); font-size: 15px !important; word-break: break-all; }
+.module-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.module-chip { font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 20px; background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+.module-chip.off { background: transparent; color: var(--text-muted); border-color: var(--border); text-decoration: line-through; opacity: 0.7; }
+.link-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.link-row .btn { text-decoration: none; }
+/* Menu atas tidak melebar keluar layar di HP */
+.app-nav { flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .app-header { padding: 12px 14px; }
+  .app-nav { width: 100%; gap: 2px; }
+  .app-nav a { padding: 6px 9px; font-size: 12px; }
+  .stat-tile strong { font-size: 16px; }
+}

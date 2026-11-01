@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `tenants` (
     `app_name` VARCHAR(150) NULL,
     `max_users` INT UNSIGNED NOT NULL DEFAULT 1,
     `modules` JSON NULL,
+    `subscription` JSON NULL COMMENT 'No. pesanan, paket, masa aktif, link kuitansi dari LMD (T-42)',
     `expires_at` DATETIME NULL,
     `last_validated_at` DATETIME NULL,
     `activated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

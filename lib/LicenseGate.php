@@ -41,6 +41,11 @@ class LicenseGate {
 
         $tenant = $this->findTenant($requested);
 
+        // Pemegang license key (link aktivasi dari Showcase) boleh membuat akun admin pertama di sesi ini (T-42)
+        if ($licenseKey !== '') {
+            $_SESSION['license_proof'] = $requested;
+        }
+
         if ($licenseKey !== '' && (!$tenant || !hash_equals($tenant['license_key'], $licenseKey))) {
             // License key baru untuk tenant ini: secret lama (milik lisensi lain) tidak dipakai
             $result = $this->validateRemote($requested, $licenseKey, null);
@@ -159,11 +164,12 @@ class LicenseGate {
 
     private function saveTenant($domain, $licenseKey, array $data, $newLicense = false) {
         $stmt = $this->db->prepare("
-            INSERT INTO tenants (domain, license_key, store_name, licensee_name, licensee_email, app_name, max_users, modules, expires_at, last_validated_at)
-            VALUES (:domain, :license_key, :store_name, :licensee_name, :licensee_email, :app_name, :max_users, :modules, :expires_at, NOW())
+            INSERT INTO tenants (domain, license_key, store_name, licensee_name, licensee_email, app_name, max_users, modules, subscription, expires_at, last_validated_at)
+            VALUES (:domain, :license_key, :store_name, :licensee_name, :licensee_email, :app_name, :max_users, :modules, :subscription, :expires_at, NOW())
             ON DUPLICATE KEY UPDATE license_key = VALUES(license_key), store_name = VALUES(store_name),
                 licensee_name = VALUES(licensee_name), licensee_email = VALUES(licensee_email), app_name = VALUES(app_name),
-                max_users = VALUES(max_users), modules = VALUES(modules), expires_at = VALUES(expires_at), last_validated_at = NOW()
+                max_users = VALUES(max_users), modules = VALUES(modules), subscription = VALUES(subscription),
+                expires_at = VALUES(expires_at), last_validated_at = NOW()
         ");
         $stmt->execute([
             'domain' => $domain,
@@ -174,6 +180,7 @@ class LicenseGate {
             'app_name' => $data['application'] ?? null,
             'max_users' => max(1, (int) ($data['max_users'] ?? 1)),
             'modules' => json_encode($data['modules'] ?? []),
+            'subscription' => isset($data['subscription']) ? json_encode($data['subscription']) : null,
             'expires_at' => $data['expires_at'] ?? null,
         ]);
         // Secret hanya dikirim LMD sekali (validasi pertama); simpan, atau buang bila license key berganti
@@ -199,6 +206,7 @@ class LicenseGate {
             'app_name' => $tenant['app_name'],
             'max_users' => (int) $tenant['max_users'],
             'modules' => json_decode($tenant['modules'] ?? '[]', true) ?: [],
+            'subscription' => json_decode($tenant['subscription'] ?? 'null', true) ?: [],
             'expires_at' => $tenant['expires_at'],
             'offline' => $offline,
         ];
