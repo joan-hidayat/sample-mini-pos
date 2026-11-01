@@ -715,3 +715,10 @@ body {
   .app-nav a { padding: 6px 9px; font-size: 12px; }
   .stat-tile strong { font-size: 16px; }
 }
+
+/* NOTIFIKASI (T-43) */
+.notif-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.notif-item { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.notif-item summary { cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.notif-subject { font-weight: 700; font-size: 14px; }
+.notif-body { white-space: pre-wrap; word-break: break-word; font: 13px/1.6 var(--font-main); color: var(--text-muted); margin-top: 10px; }

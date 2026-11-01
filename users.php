@@ -26,6 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'create') {
             $old = ['name' => $_POST['name'] ?? '', 'email' => $_POST['email'] ?? '', 'role' => $_POST['role'] ?? 'kasir'];
             $created = $repo->create($tenantId, $old['name'], $old['email'], (string) ($_POST['password'] ?? ''), $old['role'], $maxUsers);
+            Notifier::send($tenant, 'user_created', $created['email'], $created['name'], [
+                'by' => $user['name'], 'role' => UserRepository::ROLES[$created['role']] ?? $created['role'],
+            ]);
             flash('success', "User {$created['email']} berhasil ditambahkan.");
             redirect(page_url('users.php'));
         }
@@ -39,12 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($action === 'deactivate') {
             $repo->setStatus($target['id'], $tenantId, 'inactive', $maxUsers);
+            Notifier::send($tenant, 'user_deactivated', $target['email'], $target['name'], ['by' => $user['name']]);
             flash('success', "User {$target['email']} dinonaktifkan.");
         } elseif ($action === 'activate') {
             $repo->setStatus($target['id'], $tenantId, 'active', $maxUsers);
+            Notifier::send($tenant, 'user_activated', $target['email'], $target['name'], ['by' => $user['name']]);
             flash('success', "User {$target['email']} diaktifkan kembali.");
         } elseif ($action === 'reset_password') {
             $repo->resetPassword($target['id'], $tenantId, (string) ($_POST['new_password'] ?? ''));
+            Notifier::send($tenant, 'password_changed', $target['email'], $target['name'], [
+                'by' => (int) $target['id'] === (int) $user['id'] ? 'Anda sendiri' : "admin {$user['name']}",
+            ]);
             flash('success', "Password {$target['email']} berhasil diganti.");
         } else {
             throw new InvalidArgumentException('Aksi tidak dikenal.');

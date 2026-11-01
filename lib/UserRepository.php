@@ -136,7 +136,8 @@ class UserRepository {
             $lockedUntil = $attempts >= $maxAttempts ? date('Y-m-d H:i:s', time() + $lockMinutes * 60) : null;
             $this->db->prepare("UPDATE users SET failed_attempts = :attempts, locked_until = :locked WHERE id = :id")
                 ->execute(['attempts' => $lockedUntil ? 0 : $attempts, 'locked' => $lockedUntil, 'id' => $user['id']]);
-            return [null, $genericError];
+            // Elemen ke-3: user yang baru saja dikunci, agar pemanggil bisa mengirim peringatan keamanan (T-43)
+            return [null, $genericError, $lockedUntil ? $user : null];
         }
         if ($user['status'] !== 'active') {
             return [null, 'Akun ini dinonaktifkan. Hubungi admin toko.'];

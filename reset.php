@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $denyToken($result['reason']);
         }
         $users->resetPassword($target['id'], $tenantId, $password);
+        Notifier::send($tenant, 'password_changed', $target['email'], $target['name'], ['by' => 'link reset dari penyedia layanan (Central SaaS)']);
         unset($_SESSION['reset_token']);
         logout_user();
         flash('success', "Password {$target['email']} berhasil diganti. Silakan masuk dengan password baru.");
