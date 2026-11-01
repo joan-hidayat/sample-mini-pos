@@ -31,6 +31,11 @@ $config = [
     'login_max_attempts' => 5,
     'login_lock_minutes' => 5,
     'password_min_length' => 8,
+
+    // Notifikasi akun ke user toko (T-43). 'mailbox' = kotak surat lokal (menu Notifikasi, khusus admin).
+    'notify' => [
+        'channel' => 'mailbox',
+    ],
 ];
 
 if (file_exists(__DIR__ . '/config.local.php')) {

@@ -79,3 +79,20 @@ CREATE TABLE IF NOT EXISTS `sale_items` (
     CONSTRAINT `fk_sale_items_sale` FOREIGN KEY (`sale_id`) REFERENCES `sales` (`id`) ON DELETE CASCADE,
     CONSTRAINT `fk_sale_items_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- T-43: notifikasi akun ke user toko (outbox). Kanal 'mailbox' = kotak surat lokal (dibaca admin di menu Notifikasi).
+CREATE TABLE IF NOT EXISTS `notifications` (
+    `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `tenant_id` BIGINT UNSIGNED NOT NULL,
+    `event` VARCHAR(50) NOT NULL,
+    `channel` VARCHAR(20) NOT NULL,
+    `recipient` VARCHAR(150) NOT NULL,
+    `recipient_name` VARCHAR(150) NULL,
+    `subject` VARCHAR(200) NOT NULL,
+    `body` TEXT NOT NULL,
+    `status` ENUM('queued', 'sent', 'failed') NOT NULL DEFAULT 'queued',
+    `last_error` VARCHAR(255) NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT `fk_notifications_tenant` FOREIGN KEY (`tenant_id`) REFERENCES `tenants` (`id`) ON DELETE CASCADE,
+    INDEX `idx_notifications_tenant` (`tenant_id`, `id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

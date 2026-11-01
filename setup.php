@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             $admin = $users->create((int) $tenant['id'], $old['name'], $old['email'], $password, 'admin', $license['max_users']);
+            Notifier::send($tenant, 'admin_created', $admin['email'], $admin['name']);
             login_user($admin);
             flash('success', 'Akun admin berhasil dibuat. Selamat datang!');
             redirect(page_url('index.php'));

@@ -6,6 +6,7 @@ require_once __DIR__ . '/LicenseGate.php';
 require_once __DIR__ . '/UserRepository.php';
 require_once __DIR__ . '/ProductRepository.php';
 require_once __DIR__ . '/SaleRepository.php';
+require_once __DIR__ . '/Notifier.php';
 
 const MINIPOS_ROOT = __DIR__ . '/..';
 
@@ -79,7 +80,7 @@ function db() {
     $pdo->exec("USE `{$dbName}`");
 
     // Tabel dicek dari yang paling baru: database lama ikut mendapat tabel baru (schema.sql memakai IF NOT EXISTS)
-    if (!$pdo->query("SHOW TABLES LIKE 'sale_items'")->fetch()) {
+    if (!$pdo->query("SHOW TABLES LIKE 'notifications'")->fetch()) {
         $schema = preg_replace('/^--.*$/m', '', file_get_contents(MINIPOS_ROOT . '/database/schema.sql'));
         foreach (array_filter(array_map('trim', explode(';', $schema))) as $statement) {
             $pdo->exec($statement);
